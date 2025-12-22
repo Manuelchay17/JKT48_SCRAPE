@@ -28,4 +28,5 @@ jobs:
           # Mengambil kredensial dari GitHub Secrets
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        # Di dalam file scrape.yml bagian run:
         run: node syncTheater.js
