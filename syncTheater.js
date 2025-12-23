@@ -84,17 +84,31 @@ async function runAutomation() {
         }
 
         console.log('\n☁️ Step 3: Sinkronisasi ke Supabase...');
-        for (const item of theaterShows) {
-            // Kita gunakan URL sebagai kunci unik agar tidak double
-            await supabase.from('jadwal_theater').upsert({ 
-                tanggal: item.tanggal, 
-                jam: item.jam,
-                event: item.event, 
-                url: item.url, 
-                image: item.image,
-                members: item.members 
-            }, { onConflict: 'url' });
-        }
+      console.log('\n☁️ Step 3: Sinkronisasi ke Supabase...');
+for (const item of theaterShows) {
+    // 1. Cek apakah URL ini sudah ada di database
+    const { data: existingData } = await supabase
+        .from('jadwal_theater')
+        .select('url')
+        .eq('url', item.url)
+        .maybeSingle(); // Mengambil satu data jika ada
+
+    // 2. Jika data TIDAK ditemukan (null), baru lakukan insert
+    if (!existingData) {
+        console.log(`➕ Menambahkan jadwal baru: ${item.event}`);
+        await supabase.from('jadwal_theater').insert({ 
+            tanggal: item.tanggal, 
+            jam: item.jam,
+            event: item.event, 
+            url: item.url, 
+            image: item.image,
+            members: item.members 
+        });
+    } else {
+        // Jika data sudah ada, kita skip atau bisa juga update jika perlu
+        console.log(`⏭️ Jadwal sudah ada, skip: ${item.event}`);
+    }
+}
         console.log('\n✨ SELESAI! Silakan cek Supabase Anda.');
 
     } catch (error) {
